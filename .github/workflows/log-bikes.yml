@@ -1,11 +1,7 @@
 name: GBFS Bikeshare Logger
 
 on:
-  schedule:
-    # Alle 10 Minuten (UTC). GitHub Actions cron ist nicht exakt minutengenau,
-    # kleinere Verzoegerungen von ein paar Minuten sind normal.
-    - cron: '*/15 * * * *'
-  workflow_dispatch: {}   # erlaubt manuelles Anstossen über den Actions-Tab
+  workflow_dispatch: {}   # wird von cron-job.org alle 15 Minuten extern ausgeloest
 
 permissions:
   contents: write   # noetig, damit der Workflow die CSV zurueck ins Repo committen darf
