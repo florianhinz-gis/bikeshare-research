@@ -35,8 +35,6 @@ jobs:
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions Bot"
-          git add bikeshare_log.csv
+          git add bikeshare_log_*.csv
           git diff --quiet --cached || git commit -m "Bikeshare-Daten aktualisiert: $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push
-
-       # Trigger-Reaktivierung
