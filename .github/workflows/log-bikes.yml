@@ -42,3 +42,5 @@ jobs:
           git add bikeshare_log.csv
           git diff --quiet --cached || git commit -m "Bikeshare-Daten aktualisiert: $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push
+
+       # Trigger-Reaktivierung
