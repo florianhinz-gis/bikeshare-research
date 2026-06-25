@@ -1,0 +1,44 @@
+name: GBFS Bikeshare Logger
+
+on:
+  schedule:
+    # Alle 10 Minuten (UTC). GitHub Actions cron ist nicht exakt minutengenau,
+    # kleinere Verzoegerungen von ein paar Minuten sind normal.
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {}   # erlaubt manuelles Anstossen über den Actions-Tab
+
+permissions:
+  contents: write   # noetig, damit der Workflow die CSV zurueck ins Repo committen darf
+
+jobs:
+  log-bikeshare-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: R installieren
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+
+      - name: R-Pakete installieren (mit Cache)
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            jsonlite
+            dplyr
+            purrr
+            tibble
+            httr
+
+      - name: Logging-Skript ausfuehren
+        run: Rscript multi_city_gbfs_logger.R
+
+      - name: Aenderungen committen
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions Bot"
+          git add bikeshare_log.csv
+          git diff --quiet --cached || git commit -m "Bikeshare-Daten aktualisiert: $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push
