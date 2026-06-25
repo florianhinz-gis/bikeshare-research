@@ -118,12 +118,18 @@ log_system <- function(land, stadt, anbieter, gbfs_url, zeitstempel) {
     # einen einzelnen String normalisieren, damit bind_rows() nicht bricht.
     info_df <- info_df %>%
       mutate(name = vapply(name, function(x) {
-        if (is.list(x) || is.data.frame(x)) {
+        # GBFS v3.0 Standardformat fuer mehrsprachige Texte ist eine Liste/
+        # data.frame von {language: "...", text: "..."}-Paaren. Hier den
+        # "text"-Wert extrahieren statt versehentlich den Sprachcode.
+        if (is.data.frame(x) && "text" %in% names(x)) {
+          if (nrow(x) == 0) return(NA_character_)
+          as.character(x$text[1])
+        } else if (is.list(x) && !is.null(x$text)) {
+          as.character(x$text[1])
+        } else if (is.list(x)) {
           werte <- unlist(x)
           if (length(werte) == 0) return(NA_character_)
-          # Nur den ersten Sprachwert nehmen (vermeidet Duplikate wie
-          # "Name / Name / Name / en / fr / es" bei mehrsprachigen Feldern)
-          werte[1]
+          as.character(werte[1])
         } else {
           as.character(x)
         }
