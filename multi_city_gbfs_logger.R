@@ -121,7 +121,9 @@ log_system <- function(land, stadt, anbieter, gbfs_url, zeitstempel) {
         if (is.list(x) || is.data.frame(x)) {
           werte <- unlist(x)
           if (length(werte) == 0) return(NA_character_)
-          paste(werte, collapse = " / ")
+          # Nur den ersten Sprachwert nehmen (vermeidet Duplikate wie
+          # "Name / Name / Name / en / fr / es" bei mehrsprachigen Feldern)
+          werte[1]
         } else {
           as.character(x)
         }
@@ -136,6 +138,10 @@ log_system <- function(land, stadt, anbieter, gbfs_url, zeitstempel) {
     if ("num_vehicles_available" %in% names(status_df) && !("num_bikes_available" %in% names(status_df))) {
       status_df <- status_df %>% rename(num_bikes_available = num_vehicles_available)
     }
+    # Falls beide Spaltennamen aus irgendeinem Grund nebeneinander existieren
+    # (z.B. inkonsistente Anbieter-Antwort), die jetzt ueberfluessige
+    # num_vehicles_available-Spalte entfernen.
+    status_df <- status_df %>% select(-any_of("num_vehicles_available"))
 
     ergebnis <- info_df %>%
       inner_join(status_df, by = "station_id") %>%
