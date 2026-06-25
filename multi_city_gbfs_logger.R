@@ -41,30 +41,23 @@ gbfs_get <- function(url) {
 
 systeme <- tibble::tibble(
   land = c(
-    "DE","DE","DE","DE","DE","DE","DE","DE","DE","DE",
+    "DE","DE","DE","DE","DE",
     "AT","BE","BE","NO","ES"
   ),
   stadt = c(
-    "Wiesbaden","Duesseldorf","Leipzig","Dresden","Berlin",
-    "Muenchen","Bremen (Bre.Bike)","Ruhrgebiet (metropolradruhr)",
+    "Wiesbaden","Muenchen","Ruhrgebiet (metropolradruhr)",
     "Kiel/KielRegion (SprottenFlotte)","Hannover (Donkey Republic)",
     "Wien","Bruessel (Villo)","Antwerpen","Oslo (Oslo Bysykkel)","Madrid (BiciMAD)"
   ),
   anbieter = c(
-    "nextbike","nextbike","nextbike","nextbike","nextbike","nextbike",
-    "nextbike","nextbike",
+    "nextbike","nextbike","nextbike",
     "Donkey Republic","Donkey Republic",
     "nextbike","cyclocity/JCDecaux","smartbike.com",
     "Urban Infrastructure Partner (urbansharing.com)","PBSC (publicbikesystem.net)"
   ),
   gbfs_url = c(
     "https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_wn/gbfs.json",
-    "https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_dd/gbfs.json",
-    "https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_le/gbfs.json",
-    "https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_dx/gbfs.json",
-    "https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_bn/gbfs.json",
     "https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_ml/gbfs.json",
-    "https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_bq/gbfs.json",
     "https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_mr/gbfs.json",
     "https://stables.donkey.bike/api/public/gbfs/3.0/donkey_kielsmile/gbfs.json",
     "https://stables.donkey.bike/api/public/gbfs/3.0/donkey_hannover/gbfs.json",
@@ -183,8 +176,11 @@ gesamt_df <- bind_rows(alle_ergebnisse)
 
 # -----------------------------------------------------------------------------
 # 5. An CSV-Datei anhaengen (Header nur beim ersten Mal schreiben)
+#    Taegliche Dateiaufteilung: eine neue Datei pro Kalendertag (UTC), damit
+#    keine einzelne Datei zu gross wird (GitHub blockt ab 100 MB pro Datei).
 # -----------------------------------------------------------------------------
-ausgabe_datei <- "bikeshare_log.csv"
+tagesstempel <- format(Sys.time(), "%Y-%m-%d", tz = "UTC")
+ausgabe_datei <- sprintf("bikeshare_log_%s.csv", tagesstempel)
 
 if (nrow(gesamt_df) > 0) {
   write.table(
